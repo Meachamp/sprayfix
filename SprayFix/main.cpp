@@ -1,7 +1,11 @@
-#include "GarrysMod\Lua\Interface.h"
 #include "Sigscan.h"
 #include <Windows.h>
 #include <stdio.h>
+#include <eiface.h>
+#include "GarrysMod\Lua\Interface.h"
+#include <cdll_int.h>
+#include <interface.h>
+
 
 #ifdef _WIN32
 const char* spray_sig = "\x55\x8B\xEC\x8B\x4D\x10\xA1????\x3B\x01\x75?\xA1????\x3B\x41\x04\x75?\xA1????"
@@ -11,6 +15,8 @@ const char* spray_sig = "\x55\x8B\xEC\x8B\x4D\x10\xA1????\x3B\x01\x75?\xA1????\x
 "\xF3\x0F\x10\x41\x08\xF3\x0F\x11\x05????\xA1????\x8D\x55\x18\x3B\x02\x8B\xC8\xA1????\x8D\x55\x1C"
 "\x0F\x45\x4D\x18\x3B\x02\x89\x0D????\x8B\xC8\x0F\x45\x4D\x1C\xA1????\x89\x0D????\x8D\x4D\x20";
 #endif
+
+IVEngineServer* g_pEngine;
 
 GMOD_MODULE_OPEN() {
 	HMODULE mod = LoadLibrary("server.dll");
@@ -38,6 +44,12 @@ GMOD_MODULE_OPEN() {
 	printf("Sig result: %p", sig);
 
 	printf("\n");
+
+	CreateInterfaceFn factory = Sys_GetFactory("engine.dll");
+
+	g_pEngine = (IVEngineServer*)factory(INTERFACEVERSION_VENGINESERVER, 0);
+
+
 
 	return 0;
 }
