@@ -62,37 +62,32 @@ GMOD_MODULE_OPEN() {
 	}
 
 	size_t base_len = (size_t)pe->OptionalHeader.SizeOfImage;
-
-	printf("Loaded module: %p %i", base_addr, base_len);
 	__func_TE_Spray sig = (__func_TE_Spray)FindSignature(base_addr, base_len, spray_sig);
-	printf("Sig result: %p", sig);
-	printf("\n");
-
-	printf("%x", *(int*)sig);
 
 	CreateInterfaceFn factory = Sys_GetFactory("engine.dll");
 	CSysModule* fs = Sys_LoadModule("filesystem_stdio.dll");
-	printf("Module: %p", fs);
 	CreateInterfaceFn fsFactory = Sys_GetFactory(fs);
-	g_pEngine = (IVEngineServer*)factory(INTERFACEVERSION_VENGINESERVER, 0);
-	printf("\n");
-	if (!fsFactory)
-		return 1;
-	g_pFileSystem = (IFileSystem*)fsFactory(FILESYSTEM_INTERFACE_VERSION, 0);
 
-	printf("\nFS %p \n", g_pFileSystem);
+	g_pEngine = (IVEngineServer*)factory(INTERFACEVERSION_VENGINESERVER, 0);
+	g_pFileSystem = (IFileSystem*)fsFactory(FILESYSTEM_INTERFACE_VERSION, 0);
+	g_pFileSystem->Connect(Sys_GetFactoryThis());
+
+	if (g_pFileSystem->Init() != INIT_OK) {
+		printf("Unable to initialize Filesystem!!\n");
+		return 1;
+	}
+
+	g_pFileSystem->AddSearchPath("", "LOCAL");
 	detour_TE_Spray = new MologieDetours::Detour<__func_TE_Spray>(sig, hk_TE_Spray);
 
-	g_pFileSystem->Connect(Sys_GetFactoryThis());
-	if (g_pFileSystem->Init() != INIT_OK)
-		printf("BAD INIT\n");
-	g_pFileSystem->AddSearchPath("", "LOCAL");
 	return 0;
 }
 
 
 GMOD_MODULE_CLOSE() {
-	delete detour_TE_Spray;
-	detour_TE_Spray = nullptr;
+	if (detour_TE_Spray) {
+		delete detour_TE_Spray;
+		detour_TE_Spray = nullptr;
+	}
 	return 0;
 }
