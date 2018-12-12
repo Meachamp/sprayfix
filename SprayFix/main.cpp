@@ -1,7 +1,7 @@
 #include "Sigscan.h"
 #include <stdio.h>
 #include <eiface.h>
-#include "GarrysMod\Lua\Interface.h"
+#include "GarrysMod/Lua/Interface.h"
 #include <cdll_int.h>
 #include <interface.h>
 #include <cstring>
