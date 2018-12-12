@@ -1,5 +1,4 @@
 #include "Sigscan.h"
-#include <Windows.h>
 #include <stdio.h>
 #include <eiface.h>
 #include "GarrysMod\Lua\Interface.h"
@@ -12,6 +11,8 @@
 #include <utlbuffer.h>
 
 #ifdef _WIN32
+const char* spray_sig = "\x55\x8B\xEC\x83\xEC\x20\x56\x8B\x75\x08\xF3\x0F\x10\x46\x2C";
+#elif POSIX
 const char* spray_sig = "\x55\x8B\xEC\x83\xEC\x20\x56\x8B\x75\x08\xF3\x0F\x10\x46\x2C";
 #endif
 
@@ -49,20 +50,9 @@ void hk_TE_Spray(void* trace, int player) {
 }
 
 GMOD_MODULE_OPEN() {
-	HMODULE mod = LoadLibrary("server.dll");
+	CSysModule* mod = Sys_LoadModule("server.dll");
 
-	MEMORY_BASIC_INFORMATION mem;
-	if (!VirtualQuery(mod, &mem, sizeof(mem)))
-		return false;
-	char* base_addr = (char*)mem.AllocationBase;
-	IMAGE_DOS_HEADER *dos = (IMAGE_DOS_HEADER*)mem.AllocationBase;
-	IMAGE_NT_HEADERS *pe = (IMAGE_NT_HEADERS*)((unsigned long)dos + (unsigned long)dos->e_lfanew);
-	if (pe->Signature != IMAGE_NT_SIGNATURE) {
-		return false;
-	}
-
-	size_t base_len = (size_t)pe->OptionalHeader.SizeOfImage;
-	__func_TE_Spray sig = (__func_TE_Spray)FindSignature(base_addr, base_len, spray_sig);
+	__func_TE_Spray sig = (__func_TE_Spray)FindSignature((char*)mod, 10*1024*1024, spray_sig);
 
 	CreateInterfaceFn factory = Sys_GetFactory("engine.dll");
 	CSysModule* fs = Sys_LoadModule("filesystem_stdio.dll");
