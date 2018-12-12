@@ -36,8 +36,16 @@ void hk_TE_Spray(void* trace, int player) {
 	bool exists = g_pFileSystem->FileExists(custname);
 
 	if (exists) {
-	}
+		//Try to read the first 20 bytes to inspect VTF header
+		CUtlBuffer buf;
+		g_pFileSystem->ReadFile(custname, "LOCAL", buf, 20);
 
+		//here be dragons. don't look too close. 
+		buf.SeekPut(CUtlBuffer::SEEK_HEAD, 0x14);
+		//compare ref -> 0x818000
+		if (buf.GetInt() == 0x818000)
+			return;
+	}
 
 	printf("Exists %i\n", exists);
 
@@ -79,17 +87,10 @@ GMOD_MODULE_OPEN() {
 	printf("\nFS %p \n", g_pFileSystem);
 	detour_TE_Spray = new MologieDetours::Detour<__func_TE_Spray>(sig, hk_TE_Spray);
 
-	//CUtlBuffer buf;
-	//buf.PutInt64(5);
 	g_pFileSystem->Connect(Sys_GetFactoryThis());
 	if (g_pFileSystem->Init() != INIT_OK)
 		printf("BAD INIT\n");
 	g_pFileSystem->AddSearchPath("", "LOCAL");
-	//g_pFileSystem->WriteFile("test.dat", "", buf);
-
-	bool exists = g_pFileSystem->FileExists("garrysmod/download/user_custom/5a/5a73fb37.dat");
-
-	printf("EXISTS %i\n", exists);
 
 	printf("\n");
 	return 0;
