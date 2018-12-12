@@ -12,7 +12,7 @@ struct lua_State
     // Win64
     unsigned char _ignore_this_common_lua_header_[92 + 22];
 #else
-    #error
+    unsigned char _ignore_this_common_lua_header_[48 + 22];
 #endif
 
     GarrysMod::Lua::ILuaBase* luabase;
