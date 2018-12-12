@@ -6,10 +6,10 @@ project "SprayFix"
    kind "SharedLib"
    language "C++"
    targetdir "bin/%{cfg.buildcfg}"
-   includedirs {"../sourcesdk/common", "../sourcesdk/public/tier0", "../sourcesdk/public/tier1", "../sourcesdk/public", "SprayFix"}
+   includedirs {"../sourcesdk/common", "../sourcesdk/public/tier0", "../sourcesdk/public/tier1", "../sourcesdk/public", "src"}
    architecture "x86"
    targetextension ".dll"
-   files { "SprayFix/main.cpp", "SprayFix/detours/hde.cpp", "**.h" }
+   files { "src/main.cpp", "src/detours/hde.cpp", "**.h" }
    defines { "GMOD_USE_SOURCESDK"}
    
    filter "system:Windows"
