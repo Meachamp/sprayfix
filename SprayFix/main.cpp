@@ -16,7 +16,7 @@ const char* srv_module = "server.dll";
 const char* eng_module = "engine.dll";
 const char* fs_module = "filesystem_stdio.dll";
 #elif POSIX
-const char* spray_sig = "\x55\x8B\xEC\x83\xEC\x20\x56\x8B\x75\x08\xF3\x0F\x10\x46\x2C";
+const char* spray_sig = "\x55\x89\xE5\x56\x53\x83\xEC\x40\x8B\x5D\x08\xF3\x0F\x10\x05????\x0F\x2F\x43\x2C";
 const char* srv_module = "server_srv.so";
 const char* eng_module = "engine_srv.so";
 const char* fs_module = "filesystem_stdio.so";
