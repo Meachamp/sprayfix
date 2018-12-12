@@ -12,8 +12,14 @@
 
 #ifdef _WIN32
 const char* spray_sig = "\x55\x8B\xEC\x83\xEC\x20\x56\x8B\x75\x08\xF3\x0F\x10\x46\x2C";
+const char* srv_module = "server.dll";
+const char* eng_module = "engine.dll";
+const char* fs_module = "filesystem_stdio.dll";
 #elif POSIX
 const char* spray_sig = "\x55\x8B\xEC\x83\xEC\x20\x56\x8B\x75\x08\xF3\x0F\x10\x46\x2C";
+const char* srv_module = "server_srv.so";
+const char* eng_module = "engine_srv.so";
+const char* fs_module = "filesystem_stdio.so";
 #endif
 
 typedef void(*__func_TE_Spray)(void* trace, int player);
@@ -50,12 +56,12 @@ void hk_TE_Spray(void* trace, int player) {
 }
 
 GMOD_MODULE_OPEN() {
-	CSysModule* mod = Sys_LoadModule("server.dll");
+	CSysModule* mod = Sys_LoadModule(srv_module);
 
 	__func_TE_Spray sig = (__func_TE_Spray)FindSignature((char*)mod, 10*1024*1024, spray_sig);
 
-	CreateInterfaceFn factory = Sys_GetFactory("engine.dll");
-	CSysModule* fs = Sys_LoadModule("filesystem_stdio.dll");
+	CreateInterfaceFn factory = Sys_GetFactory(eng_module);
+	CSysModule* fs = Sys_LoadModule(fs_module);
 	CreateInterfaceFn fsFactory = Sys_GetFactory(fs);
 
 	g_pEngine = (IVEngineServer*)factory(INTERFACEVERSION_VENGINESERVER, 0);
