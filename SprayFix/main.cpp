@@ -12,7 +12,6 @@
 #include <utlbuffer.h>
 
 #ifdef _WIN32
-//const char* spray_sig = "\x55\x8B\xEC\x8B\x4D\x10\xA1";
 const char* spray_sig = "\x55\x8B\xEC\x83\xEC\x20\x56\x8B\x75\x08\xF3\x0F\x10\x46\x2C";
 #endif
 
@@ -32,22 +31,19 @@ void hk_TE_Spray(void* trace, int player) {
 	char custname[512];
 	Q_snprintf(custname, sizeof(custname), "garrysmod/download/user_custom/%c%c/%s.dat", logohex[0], logohex[1], logohex);
 
-	printf(custname);
 	bool exists = g_pFileSystem->FileExists(custname);
-
 	if (exists) {
-		//Try to read the first 20 bytes to inspect VTF header
+		//Try to read the first 32 bytes to inspect VTF header
 		CUtlBuffer buf;
-		g_pFileSystem->ReadFile(custname, "LOCAL", buf, 20);
+		g_pFileSystem->ReadFile(custname, "LOCAL", buf, 0x20);
 
 		//here be dragons. don't look too close. 
 		buf.SeekPut(CUtlBuffer::SEEK_HEAD, 0x14);
+		buf.SeekGet(CUtlBuffer::SEEK_HEAD, 0x14);
 		//compare ref -> 0x818000
 		if (buf.GetInt() == 0x818000)
 			return;
 	}
-
-	printf("Exists %i\n", exists);
 
 	detour_TE_Spray->GetOriginalFunction()(trace, player);
 }
@@ -91,8 +87,6 @@ GMOD_MODULE_OPEN() {
 	if (g_pFileSystem->Init() != INIT_OK)
 		printf("BAD INIT\n");
 	g_pFileSystem->AddSearchPath("", "LOCAL");
-
-	printf("\n");
 	return 0;
 }
 
